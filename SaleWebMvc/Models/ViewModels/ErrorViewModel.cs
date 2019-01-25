@@ -1,6 +1,7 @@
 using System;
 
-namespace SaleWebMvc.Models
+// ErrorViewModel não é um model propriamente dito
+namespace SaleWebMvc.Models.ViewModels
 {
     public class ErrorViewModel
     {
