@@ -33,11 +33,11 @@ namespace SaleWebMvc
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<SaleWebMvcContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("SaleWebMvcContext")));
+                options.UseMySql(Configuration.GetConnectionString("SaleWebMvcContext"), builder =>
+                    builder.MigrationsAssembly("SaleWebMvc")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
