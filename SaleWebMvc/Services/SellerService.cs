@@ -2,6 +2,7 @@
 using System.Linq;
 using SaleWebMvc.Models;
 using Microsoft.EntityFrameworkCore;
+using SaleWebMvc.Services.Exceptions;
 
 namespace SaleWebMvc.Services
 {
@@ -35,6 +36,24 @@ namespace SaleWebMvc.Services
             var obj = _context.Sellers.Find(id);
             _context.Sellers.Remove(obj);
             _context.SaveChanges();
+        }
+
+        public void Update(Seller obj)
+        {
+            if(!_context.Sellers.Any(x => x.Id == obj.Id))
+            {
+                throw new NotFoundException("Id não encontrado!");
+            }
+
+            try
+            {
+                _context.Update(obj);
+                _context.SaveChanges();
+            }
+            catch(DbConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
         }
     }
 }
