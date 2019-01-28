@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -44,11 +45,13 @@ namespace SaleWebMvc.Controllers
 
         public IActionResult Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return RedirectToAction(nameof(Error), new { msg = "Id não informado" });
 
             var obj = _sellerService.FindById(id.Value);
 
-            if (obj == null) return NotFound();
+            if (obj == null)
+                return RedirectToAction(nameof(Error), new { msg = "Id não encontrado" });
 
             return View(obj);
         }
@@ -63,22 +66,26 @@ namespace SaleWebMvc.Controllers
 
         public IActionResult Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return RedirectToAction(nameof(Error), new { msg = "Id não informado" });
 
             var obj = _sellerService.FindById(id.Value);
 
-            if (obj == null) return NotFound();
+            if (obj == null)
+                return RedirectToAction(nameof(Error), new { msg = "Id não encontrado" });
 
             return View(obj);
         }
 
         public IActionResult Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return RedirectToAction(nameof(Error), new { msg = "Id não informado" });
 
             var obj = _sellerService.FindById(id.Value);
 
-            if (obj == null) return NotFound();
+            if (obj == null)
+                return RedirectToAction(nameof(Error), new { msg = "Id não encontrado" });
 
             List<Department> departments = _departmentService.FindAll();
             SellerFormViewModel viewModel = new SellerFormViewModel
@@ -96,7 +103,7 @@ namespace SaleWebMvc.Controllers
         {
             if(id != seller.Id)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { msg = "Id Incompatível"});
             }
 
             try
@@ -104,14 +111,21 @@ namespace SaleWebMvc.Controllers
                 _sellerService.Update(seller);
                 return RedirectToAction(nameof(Index));
             }
-            catch(NotFoundException)
+            catch(ApplicationException e)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { msg = e.Message });
             }
-            catch(DbConcurrencyException)
+        }
+
+        public IActionResult Error(string msg)
+        {
+            var viewModel = new ErrorViewModel
             {
-                return BadRequest();
-            }
+                Message = msg,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            };
+
+            return View(viewModel);
         }
     }
 }
