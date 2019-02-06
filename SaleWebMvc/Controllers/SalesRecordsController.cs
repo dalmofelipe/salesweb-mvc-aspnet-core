@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using SaleWebMvc.Models;
+using SaleWebMvc.Models.ViewModels;
 using SaleWebMvc.Services;
 
 namespace SaleWebMvc.Controllers
@@ -10,15 +10,48 @@ namespace SaleWebMvc.Controllers
     public class SalesRecordsController : Controller
     {
         private readonly SalesRecordService _salesRecordService;
+        private readonly SellerService _sellerService;
 
-        public SalesRecordsController(SalesRecordService salesRecordService)
+        public SalesRecordsController(SalesRecordService salesRecordService, SellerService sellerService)
         {
             _salesRecordService = salesRecordService;
+            _sellerService = sellerService;
         }
 
         public IActionResult Index()
         {
             return View();
+        }
+
+        public async Task<IActionResult> Create()
+        {
+            var sellers = await _sellerService.FindAllAsync();
+            var viewModel = new SaleFormViewModel {
+                Sellers = sellers
+            };
+            
+            ViewData["dataAtual"] = DateTime.Now.ToString("yyyy-MM-dd");
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(SalesRecord salesRecord)
+        {
+            if(!ModelState.IsValid)
+            {
+                var sellers = await _sellerService.FindAllAsync();
+                var viewModel = new SaleFormViewModel
+                {
+                    SalesRecord = salesRecord,
+                    Sellers = sellers
+                };
+
+                return View(viewModel);
+            }
+
+            await _sellerService.AddSale(salesRecord);
+            return RedirectToAction(nameof(SimpleSearch));
         }
 
         public async Task<IActionResult> SimpleSearch(DateTime? minDate, DateTime? maxDate)

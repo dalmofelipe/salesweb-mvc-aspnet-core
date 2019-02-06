@@ -65,5 +65,28 @@ namespace SaleWebMvc.Services
                 throw new DbConcurrencyException(e.Message);
             }
         }
+
+        public async Task AddSale(SalesRecord obj)
+        {
+            var hasObj = await _context.Sellers.AnyAsync(x => x.Id == obj.SellerId);
+
+            if (!hasObj)
+            {
+                throw new NotFoundException("Id do vendedor não encontrado!");
+            }
+
+            try
+            {
+                var seller = await _context.Sellers.Where(x => x.Id == obj.SellerId).FirstOrDefaultAsync();
+                obj.Seller = seller;
+                seller.Sales.Add(obj);
+                _context.Update(seller);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace SaleWebMvc.Models
 
         [Display(Name = "Nome")]
         [Required(ErrorMessage = "{0} é campo obrigatório")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "{0} deve possuir entre {2} e {1} caracteres")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "{0} deve possuir entre {2} e {1} caracteres")]
         public string Name { get; set; }
 
         [DataType(DataType.EmailAddress)]
@@ -29,7 +29,7 @@ namespace SaleWebMvc.Models
         [DisplayFormat(DataFormatString = "{0:F2}")]
         [Required(ErrorMessage = "{0} é campo obrigatório!")]
         [Range(100.0, 5000.0, ConvertValueInInvariantCulture = true, 
-            ErrorMessage = "Informe um valor entre {2} e {1}")]
+            ErrorMessage = "Informe um {0} entre {1} e {2}")]
         public double BaseSalary { get; set; }
 
         public Department Department { get; set; }
@@ -66,6 +66,11 @@ namespace SaleWebMvc.Models
         {
             return Sales.Where(sr => sr.Date > initial && sr.Date < final)
                 .Sum(sr => sr.Amount);
+        }
+
+        public override string ToString()
+        {
+            return Id + ", " + Name;
         }
     }
 }
